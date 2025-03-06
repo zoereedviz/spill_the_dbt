@@ -1,0 +1,34 @@
+version: 2
+
+sources:
+  - name: library
+    schema: main
+    tables:
+      - name: books_factual
+        columns:
+          - name: book_id
+            data_tests:
+              - not_null
+              - unique
+      - name: books_fictional
+        columns:
+          - name: book_id
+            data_tests:
+              - not_null
+              - unique
+      - name: loans
+        columns:
+          - name: loan_id
+            data_tests:
+              - not_null
+      - name: members
+        columns:
+          - name: membership_tier
+            data_tests:
+              - accepted_values:
+                  values: ["Bronze", "Silver", "Gold"]
+          - name: member_id
+            data_tests:
+              - not_null
+# Add a test that tests that books in the loan table exist in the factual books table or fictional books table. (RELATIONSHIP TEST)
+# Add a test that tests that members in the loan table exist in the members table. (RELATIONSHIP TEST)
