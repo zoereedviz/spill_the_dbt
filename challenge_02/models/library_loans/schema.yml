@@ -5,30 +5,54 @@ sources:
     schema: main
     tables:
       - name: books_factual
-        columns:
-          - name: book_id
-            data_tests:
-              - not_null
-              - unique
       - name: books_fictional
-        columns:
-          - name: book_id
-            data_tests:
-              - not_null
-              - unique
       - name: loans
-        columns:
-          - name: loan_id
-            data_tests:
-              - not_null
       - name: members
-        columns:
-          - name: membership_tier
-            data_tests:
-              - accepted_values:
-                  values: ["Bronze", "Silver", "Gold"]
-          - name: member_id
-            data_tests:
-              - not_null
-# Add a test that tests that books in the loan table exist in the factual books table or fictional books table. (RELATIONSHIP TEST)
-# Add a test that tests that members in the loan table exist in the members table. (RELATIONSHIP TEST)
+
+models:
+  - name: stg_books
+    columns:
+      - name: book_id
+        data_tests:
+          - not_null
+          - unique
+
+  - name: stg_loans
+    columns:
+      - name: loan_id
+        data_tests:
+          - not_null
+      - name: book_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_books')
+              field: book_id
+      - name: member_id
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_members')
+              field: member_id
+
+  - name: stg_members
+    columns:
+      - name: membership_tier
+        data_tests:
+          - accepted_values:
+              values: ["Bronze", "Silver", "Gold"]
+      - name: member_id
+        data_tests:
+          - not_null
+
+  - name: customers_with_late_fees
+    tests:
+      - dbt_utils.equal_rowcount:
+          compare_model: ref('solution')
+    columns:
+      - name: fee_to_pay
+        data_tests:
+          - new_test
+
+seeds:
+  - name: solution
